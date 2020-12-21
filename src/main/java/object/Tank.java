@@ -4,14 +4,12 @@ import javax.swing.*;
 import java.awt.*;
 
 public class Tank {
-    private int x, y, speed;
-    private Direction direction;
-    private boolean[] dirs = new boolean[4];
 
-//    public static final int UP = 0;
-//    public static final int DOWN = 1;
-//    public static final int LEFT = 2;
-//    public static final int RIGHT = 3;
+    private int x, y, speed;
+
+    private Direction direction;
+
+    private boolean[] dirs = new boolean[4];
 
     public Tank(int x, int y, Direction direction) {
         this.x = x;
@@ -21,36 +19,8 @@ public class Tank {
 
     }
 
-    public void setSpeed(int speed) {
-        this.speed = speed;
-    }
-
-    public int getSpeed() {
-        return speed;
-    }
-
-    public void setDirection(Direction direction) {
-        this.direction = direction;
-    }
-
-    public Direction getDirection() {
-        return direction;
-    }
-
-    public void setX(int x) {
-        this.x = x;
-    }
-
-    public void setY(int y) {
-        this.y = y;
-    }
-
-    public int getX() {
-        return x;
-    }
-
-    public int getY() {
-        return y;
+    public boolean[] getDirs() {
+        return dirs;
     }
 
     public Image getImage() {
@@ -73,7 +43,7 @@ public class Tank {
             return new ImageIcon("assets\\images\\iTankLD.png").getImage();
         }
         if (direction == Direction.UP_RIGHT) {
-            return new ImageIcon("assets\\images\\iTankLU.png").getImage();
+            return new ImageIcon("assets\\images\\iTankRU.png").getImage();
         }
         if (direction == Direction.DOWN_RIGHT) {
             return new ImageIcon("assets\\images\\iTankRD.png").getImage();
@@ -95,6 +65,22 @@ public class Tank {
             case RIGHT:
                 x += speed;
                 break;
+            case UP_LEFT:
+                y -= speed;
+                x -= speed;
+                break;
+            case UP_RIGHT:
+                y -= speed;
+                x += speed;
+                break;
+            case DOWN_LEFT:
+                y += speed;
+                x -= speed;
+                break;
+            case DOWN_RIGHT:
+                y += speed;
+                x += speed;
+                break;
         }
     }
 
@@ -103,10 +89,27 @@ public class Tank {
         else if (dirs[0] && dirs[3] && !dirs[2] && !dirs[1]) direction = Direction.UP_RIGHT;
         else if (dirs[1] && dirs[2] && !dirs[0] && !dirs[3]) direction = Direction.DOWN_LEFT;
         else if (dirs[1] && dirs[3] && !dirs[0] && !dirs[2]) direction = Direction.DOWN_RIGHT;
-        else if (dirs[0] && !dirs[1] && !dirs[2] && !dirs[3]) direction = Direction.UP;
-        else if (dirs[1] && !dirs[2] && !dirs[3] && !dirs[0]) direction = Direction.DOWN;
-        else if (dirs[2] && !dirs[3] && !dirs[2] && !dirs[1]) direction = Direction.LEFT;
-        else if (dirs[3] && !dirs[0] && !dirs[2] && !dirs[1]) direction = Direction.RIGHT;
+        else if (dirs[0] && !dirs[3] && !dirs[2] && !dirs[1]) direction = Direction.UP;
+        else if (dirs[1] && !dirs[3] && !dirs[2] && !dirs[0]) direction = Direction.DOWN;
+        else if (dirs[2] && !dirs[0] && !dirs[1] && !dirs[3]) direction = Direction.LEFT;
+        else if (dirs[3] && !dirs[0] && !dirs[1] && !dirs[2]) direction = Direction.RIGHT;
 
+    }
+
+    public void draw(Graphics g) {
+        if (!isStop()) {
+            determineDirection();
+            move();
+        }
+        g.drawImage(getImage(), x, y, null);
+    }
+
+    public boolean isStop() {
+        for (int i = 0; i < dirs.length; i++) {
+            if (dirs[i]) {
+                return false;
+            }
+        }
+        return true;
     }
 }
