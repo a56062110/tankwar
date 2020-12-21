@@ -12,7 +12,8 @@ public class TankGame {
         frame.setVisible(true);                         //啟動時視窗為顯示狀態
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);           //設置視窗可手動關閉
         frame.pack();
-        gameClient.repaint();                   //放入繪製圖案
+        gameClient.init();
+
 
         frame.addKeyListener(new KeyAdapter() {         //產生事件監聽類別
             @Override

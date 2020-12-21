@@ -9,12 +9,19 @@ public class Tank {
 
     private Direction direction;
 
+    private boolean enemy;
+
     private boolean[] dirs = new boolean[4];
 
-    public Tank(int x, int y, Direction direction) {
+    public Tank(int x, int y, Direction direction){
+        this(x,y,direction,false);
+    }
+
+    public Tank(int x, int y, Direction direction,boolean enemy) {
         this.x = x;
         this.y = y;
         this.direction = direction;
+        this.enemy =enemy;
         speed = 5;
 
     }
@@ -24,29 +31,32 @@ public class Tank {
     }
 
     public Image getImage() {
+
+        String name =enemy ?"eTank":"iTank";
+
         if (direction == Direction.UP) {
-            return new ImageIcon("assets\\images\\iTankU.png").getImage();
+            return new ImageIcon("assets\\images\\"+name+"U.png").getImage();
         }
         if (direction == Direction.DOWN) {
-            return new ImageIcon("assets\\images\\iTankD.png").getImage();
+            return new ImageIcon("assets\\images\\"+name+"D.png").getImage();
         }
         if (direction == Direction.LEFT) {
-            return new ImageIcon("assets\\images\\iTankL.png").getImage();
+            return new ImageIcon("assets\\images\\"+name+"L.png").getImage();
         }
         if (direction == Direction.RIGHT) {
-            return new ImageIcon("assets\\images\\iTankR.png").getImage();
+            return new ImageIcon("assets\\images\\"+name+"R.png").getImage();
         }
         if (direction == Direction.UP_LEFT) {
-            return new ImageIcon("assets\\images\\iTankLU.png").getImage();
+            return new ImageIcon("assets\\images\\"+name+"LU.png").getImage();
         }
         if (direction == Direction.DOWN_LEFT) {
-            return new ImageIcon("assets\\images\\iTankLD.png").getImage();
+            return new ImageIcon("assets\\images\\"+name+"LD.png").getImage();
         }
         if (direction == Direction.UP_RIGHT) {
-            return new ImageIcon("assets\\images\\iTankRU.png").getImage();
+            return new ImageIcon("assets\\images\\"+name+"RU.png").getImage();
         }
         if (direction == Direction.DOWN_RIGHT) {
-            return new ImageIcon("assets\\images\\iTankRD.png").getImage();
+            return new ImageIcon("assets\\images\\"+name+"RD.png").getImage();
         }
         return null;
     }
@@ -112,4 +122,6 @@ public class Tank {
         }
         return true;
     }
+
+
 }
