@@ -1,8 +1,8 @@
 import object.Direction;
 import object.GameObject;
 
-import javax.swing.*;
 import java.awt.*;
+import java.util.List;
 
 public class Tank extends GameObject {
 
@@ -20,7 +20,6 @@ public class Tank extends GameObject {
         this.direction = direction;
         this.enemy =enemy;
         speed = 10;
-
     }
 
     public boolean[] getDirs() {
@@ -60,34 +59,7 @@ public class Tank extends GameObject {
                 x += speed;
                 break;
         }
-
-        if (x<0){
-            x=0;
-        }else if (x>TankGame.getGameClient().getScreenWidth()-width){
-            x=TankGame.getGameClient().getScreenWidth()-width;
-        }
-        if (y<0){
-            y=0;
-        }else if (y>TankGame.getGameClient().getScreenHeight()-height){
-            y=TankGame.getGameClient().getScreenHeight()-height;
-        }
-
-        for (Wall wall:TankGame.gameClient.getWalls()){
-            if (getRectangle().intersects(wall.getRectangle())){
-                System.out.println("hit!");
-                x=oldX;
-                y=oldY;
-                return;
-            }
-        }
-        for (Tank tank:TankGame.gameClient.getEnemyTanks()){
-            if (getRectangle().intersects(tank.getRectangle())){
-                x=oldX;
-                y=oldY;
-                return;
-            }
-        }
-
+        collision();
     }
 
     private void determineDirection() {
@@ -119,5 +91,44 @@ public class Tank extends GameObject {
         return true;
     }
 
+    public void collision(){
+        if (x<0){
+            x=0;
+        }else if (x>TankGame.getGameClient().getScreenWidth()-width){
+            x=TankGame.getGameClient().getScreenWidth()-width;
+        }
+        if (y<0){
+            y=0;
+        }else if (y>TankGame.getGameClient().getScreenHeight()-height){
+            y=TankGame.getGameClient().getScreenHeight()-height;
+        }
+
+        for (Wall wall:TankGame.gameClient.getWalls()){
+            if (getRectangle().intersects(wall.getRectangle())){
+                System.out.println("hit!");
+                x=oldX;
+                y=oldY;
+                return;
+            }
+        }
+        for (Tank tank:TankGame.gameClient.getEnemyTanks()){
+            if (getRectangle().intersects(tank.getRectangle())){
+                x=oldX;
+                y=oldY;
+                return;
+            }
+        }
+
+        List<GameObject> objects = TankGame.gameClient.getGameObject();
+        for (GameObject object : objects){
+            if (object!=this&&getRectangle().intersects(object.getRectangle())){
+                x=oldX;
+                y=oldY;
+                return;
+            }
+        }
+
+
+    }
 
 }
