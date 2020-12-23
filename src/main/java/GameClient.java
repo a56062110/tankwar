@@ -1,25 +1,23 @@
 import object.Direction;
-import object.Tank;
-import object.Wall;
+import object.GameObject;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 
 public class GameClient extends JComponent {
 
     private int screenWidth;
-
     private int screenHeight;
-
     private Tank playerTank;
 
+    private ArrayList<GameObject> gameObject = new ArrayList<GameObject>();
     private List<Tank> enemyTanks = new ArrayList<Tank>();
-
     private List<Wall> walls = new ArrayList<Wall>();
 
     private boolean stop;
@@ -33,7 +31,7 @@ public class GameClient extends JComponent {
         this.screenHeight = screenHeight;
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
 
-        playerTank = new Tank(100, 100, Direction.UP);
+        init();
 
         new Thread(new Runnable() {
             public void run() {
@@ -49,41 +47,42 @@ public class GameClient extends JComponent {
             }
         }).start();
 
-        Wall[] walls = {
-                new Wall(150,175,true,12),
-                new Wall(100,265,true,14),
-                new Wall(150,355,true,14),
-                new Wall(60,60,false,17),
-                new Wall(150,3,false,5),
-                new Wall(600,3,false,16),
-                new Wall(450,43,false,4),
-                new Wall(350,3,false,4),
-                new Wall(250,43,false,4),
-
-        };
-        this.walls.addAll(Arrays.asList(walls));
 
     }
 
-    public int getScreenHeight() {
-        return screenHeight;
+    public ArrayList<GameObject> getGameObject() {
+        return gameObject;
+    }
+
+    public List<Tank> getEnemyTanks() {
+        return enemyTanks;
+    }
+
+    public List<Wall> getWalls() {
+        return walls;
     }
 
     public int getScreenWidth() {
         return screenWidth;
     }
 
+    public int getScreenHeight() {
+        return screenHeight;
+    }
+
     @Override
     protected void paintComponent(Graphics g) {                 //繪製功能
-        super.paintComponent(g);                        //可有可無
         g.setColor(Color.lightGray);
-        g.fillRect(0, 0, getScreenWidth(), getScreenHeight());
-        playerTank.draw(g);                  //繪製圖案
-        for (Tank tank : enemyTanks){
-            tank.draw(g);
-        }
-        for (Wall wall:walls){
-            wall.draw(g);
+//        g.fillRect(0, 0, getScreenWidth(), getScreenHeight());
+//        playerTank.draw(g);                  //繪製圖案
+//        for (Tank tank : enemyTanks){
+//            tank.draw(g);
+//        }
+//        for (Wall wall:walls){
+//            wall.draw(g);
+//        }
+        for (GameObject object : gameObject) {
+            object.draw(g);
         }
     }
 
@@ -133,12 +132,36 @@ public class GameClient extends JComponent {
     }
 
     public void init(){
-        playerTank = new Tank(375,80,Direction.DOWN);
+        Image[] brickImage = {Tools.getImage("brick.png")};
+        Image[] iTankImage = new Image[8];
+        Image[] eTankImage = new Image[8];
+
+        String[] sub = {"U.png", "D.png", "L.png", "R.png", "LU.png", "RU.png", "LD.png", "RD.png"};
+
+        for (int i = 0; i < iTankImage.length; i++) {
+            iTankImage[i] = Tools.getImage("iTank" + sub[i]);
+            eTankImage[i] = Tools.getImage("eTank" + sub[i]);
+        }
+        playerTank = new Tank(375, 50, Direction.DOWN, iTankImage);
         for (int i=0;i<3;i++){
             for (int j=0;j<4;j++){
-                enemyTanks.add(new Tank(250+j*80,300+i*80,Direction.UP,true));
+                enemyTanks.add(new Tank(250+j*80,300+i*80,Direction.UP,true, eTankImage));
             }
         }
+        walls.addAll(Arrays.asList(new Wall[]{
+                new Wall(150, 100, true, 15, brickImage),
+                new Wall(150, 200, false, 12, brickImage),
+                new Wall(600, 200, false, 12, brickImage),
+        }));
+
+        gameObject.add(playerTank);
+        gameObject.addAll((Collection<? extends GameObject>) walls);
+        gameObject.addAll((Collection<? extends GameObject>) enemyTanks);
+
+
+
+
+
     }
 
 
