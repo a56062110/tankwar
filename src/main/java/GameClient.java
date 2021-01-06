@@ -4,23 +4,28 @@ import object.GameObject;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
+import java.util.*;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 
 public class GameClient extends JComponent {
 
     private int screenWidth;
     private int screenHeight;
-    private Tank playerTank;
-
-    private ArrayList<GameObject> gameObject = new ArrayList<GameObject>();
-    private List<Tank> enemyTanks = new ArrayList<Tank>();
-    private List<Wall> walls = new ArrayList<Wall>();
-
+    private PlayerTank playerTank;
     private boolean stop;
+    protected static Image[] bulletImage = new Image[8];
+    private  Image[] eTankImage = new Image[8];
+
+
+    private CopyOnWriteArrayList<GameObject> gameObject = new CopyOnWriteArrayList<GameObject>();
+
+
+    public void addGameObject(GameObject object) {
+        gameObject.add(object);
+    }
+
 
     public GameClient() {
         this(800, 600);          //設置遊戲畫面大小
@@ -39,7 +44,7 @@ public class GameClient extends JComponent {
 
                     repaint();
                     try {
-                        Thread.sleep(50);
+                        Thread.sleep(40);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -50,16 +55,12 @@ public class GameClient extends JComponent {
 
     }
 
-    public ArrayList<GameObject> getGameObject() {
+    public CopyOnWriteArrayList<GameObject> getGameObject() {
         return gameObject;
     }
 
-    public List<Tank> getEnemyTanks() {
-        return enemyTanks;
-    }
-
-    public List<Wall> getWalls() {
-        return walls;
+    public static Image[] getBulletImage() {
+        return bulletImage;
     }
 
     public int getScreenWidth() {
@@ -73,17 +74,17 @@ public class GameClient extends JComponent {
     @Override
     protected void paintComponent(Graphics g) {                 //繪製功能
         g.setColor(Color.lightGray);
-//        g.fillRect(0, 0, getScreenWidth(), getScreenHeight());
-//        playerTank.draw(g);                  //繪製圖案
-//        for (Tank tank : enemyTanks){
-//            tank.draw(g);
-//        }
-//        for (Wall wall:walls){
-//            wall.draw(g);
-//        }
         for (GameObject object : gameObject) {
             object.draw(g);
         }
+        for (GameObject object : gameObject) {
+            if (!object.isAlive()) {
+                gameObject.remove(object);
+            }
+        }
+
+        checkGameState();
+        System.out.println(gameObject.size());
     }
 
     public void keyPressed(KeyEvent e) {
@@ -102,6 +103,12 @@ public class GameClient extends JComponent {
                 break;
             case KeyEvent.VK_RIGHT:
                 dirs[3] = true;
+                break;
+            case KeyEvent.VK_CONTROL:
+                playerTank.fire();
+                break;
+            case KeyEvent.VK_S:
+                playerTank.superFire();
                 break;
             default:
         }
@@ -131,37 +138,54 @@ public class GameClient extends JComponent {
 
     }
 
-    public void init(){
+    public void init() {
         Image[] brickImage = {Tools.getImage("brick.png")};
         Image[] iTankImage = new Image[8];
-        Image[] eTankImage = new Image[8];
+
 
         String[] sub = {"U.png", "D.png", "L.png", "R.png", "LU.png", "RU.png", "LD.png", "RD.png"};
 
         for (int i = 0; i < iTankImage.length; i++) {
             iTankImage[i] = Tools.getImage("iTank" + sub[i]);
             eTankImage[i] = Tools.getImage("eTank" + sub[i]);
+            bulletImage[i] = Tools.getImage("missile" + sub[i]);
         }
-        playerTank = new Tank(375, 50, Direction.DOWN, iTankImage);
-        for (int i=0;i<3;i++){
-            for (int j=0;j<4;j++){
-                enemyTanks.add(new Tank(250+j*80,300+i*80,Direction.UP,true, eTankImage));
+        playerTank = new PlayerTank(400, 50, Direction.DOWN, iTankImage);
+        gameObject.add(playerTank);
+
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 4; j++) {
+                gameObject.add(new EnemyTank(220 + j * 110, 300 + i * 110, Direction.UP, true, eTankImage));
             }
         }
-        walls.addAll(Arrays.asList(new Wall[]{
-                new Wall(150, 100, true, 15, brickImage),
-                new Wall(150, 200, false, 12, brickImage),
-                new Wall(600, 200, false, 12, brickImage),
+        gameObject.addAll(Arrays.asList(new Wall[]{
+                new Wall(175, 100, true, 15, brickImage),
+                new Wall(125, 200, false, 12, brickImage),
+                new Wall(675, 200, false, 12, brickImage),
         }));
 
-        gameObject.add(playerTank);
-        gameObject.addAll((Collection<? extends GameObject>) walls);
-        gameObject.addAll((Collection<? extends GameObject>) enemyTanks);
 
 
 
+    }
 
+    public void checkGameState() {
+        boolean gameWin = true;
 
+        for (GameObject object : gameObject) {
+            if (object instanceof EnemyTank) {
+                gameWin = false;
+                break;
+            }
+        }
+
+        if (gameWin) {
+            for (int i = 0; i < 3; i++) {
+                for (int j = 0; j < 4; j++) {
+                    gameObject.add(new EnemyTank(350 + j * 100, 500 + 80 * i, Direction.UP, true, eTankImage));
+                }
+            }
+        }
     }
 
 
